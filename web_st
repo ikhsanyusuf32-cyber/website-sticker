@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Sticker Maker ✨</title>
+    <style>
+        :root {
+            --primary-color: #ff8fab;
+            --secondary-color: #fb6f92;
+            --bg-color: #ffe5ec;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        header {
+            background-color: var(--white);
+            padding: 30px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--secondary-color);
+            font-size: 2.5rem;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 15px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            text-align: center;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--secondary-color);
+        }
+
+        .btn-generate {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        .btn-generate:hover {
+            transform: scale(1.05);
+            background-color: #e05a7b;
+        }
+
+        .btn-generate:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result-area {
+            margin-top: 30px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            background-color: #fafafa;
+        }
+
+        .result-area img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .error-msg {
+            display: none;
+            color: #d32f2f;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .retry-btn {
+            background-color: #ff8fab;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .download-btn {
+            display: none;
+            margin-top: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            margin-top: 50px;
+            color: #888;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>AI Sticker Maker 🎨</h1>
+        <p>Tulis ide kamu, AI akan membuatkan sticker!</p>
+    </header>
+
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="promptInput" placeholder="Contoh: Kucing lucu makan pizza...">
+            <br>
+            <button class="btn-generate" id="generateBtn" onclick="buatSticker()">Buat Sticker ✨</button>
+        </div>
+
+        <div class="result-area" id="resultArea">
+            <div class="loading" id="loadingText">Sedang menggambar sticker... ⏳</div>
+            <div class="error-msg" id="errorMsg">
+                Gagal memuat gambar. <br>
+                <small>(Coba gunakan Live Server atau koneksi internet stabil)</small>
+                <br>
+                <button class="retry-btn" onclick="buatSticker()">Coba Lagi</button>
+            </div>
+            <img id="stickerImage" alt="Hasil Sticker AI">
+            <a id="downloadLink" class="download-btn" href="#" download="sticker-lucu.png">Download Sticker</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Dibuat dengan AI Gratis (Pollinations.ai)</p>
+    </footer>
+
+    <script>
+        function buatSticker() {
+            const input = document.getElementById('promptInput').value;
+            const btn = document.getElementById('generateBtn');
+            const img = document.getElementById('stickerImage');
+            const loading = document.getElementById('loadingText');
+            const errorMsg = document.getElementById('errorMsg');
+            const downloadBtn = document.getElementById('downloadLink');
+            const resultArea = document.getElementById('resultArea');
+
+            // Reset tampilan
+            img.style.display = 'none';
+            downloadBtn.style.display = 'none';
+            errorMsg.style.display = 'none';
+            loading.style.display = 'block';
+            btn.disabled = true;
+            btn.innerText = "Sedang Membuat...";
+
+            if (input.trim() === "") {
+                alert("Tulis ide sticker dulu ya! 😊");
+                loading.style.display = 'none';
+                btn.disabled = false;
+                btn.innerText = "Buat Sticker ✨";
+                return;
+            }
+
+            // Tambahkan kata kunci agar hasilnya mirip sticker
+            const prompt = `${input}, sticker, cute, white background, vector art, high quality, kawaii style`;
+            const encodedPrompt = encodeURIComponent(prompt);
+            const randomSeed = Math.floor(Math.random() * 10000);
+            
+            // URL API
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&seed=${randomSeed}&nologo=true`;
+
+            // Set gambar
+            img.src = imageUrl;
+
+            // Saat gambar selesai dimuat
+            img.onload = function() {
+                loading.style.display = 'none';
+                img.style.display = 'block';
+                downloadBtn.style.display = 'inline-block';
+                downloadBtn.href = imageUrl;
+                btn.disabled = false;
+                btn.innerText = "Buat Sticker Lagi ✨";
+            };
+
+            // Jika gagal load
+            img.onerror = function() {
+                loading.style.display = 'none';
+                errorMsg.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = "Buat Sticker ✨";
+                console.error("Gagal memuat gambar. Cek koneksi atau gunakan Live Server.");
+            };
+        }
+    </script>
+
+</body>
+</html>
